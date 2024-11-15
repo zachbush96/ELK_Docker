@@ -9,8 +9,7 @@ services:
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       discovery.type: single-node
-      xpack.security.enabled: true
-      xpack.security.enrollment.enabled: true
+      xpack.security.enabled: false
     ports:
     - '9200:9200'
     - '9300:9300'
@@ -23,7 +22,7 @@ services:
     restart: always
     volumes:
     - ./logstash/:/logstash_dir
-    - ./temp:/root/temp
+    - ./temp:/logstash_dir/logs/temp/:rw
     command: logstash -f /logstash_dir/logstash.conf 
     depends_on:
       - Elasticsearch
@@ -42,7 +41,7 @@ services:
     - '5601:5601'
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+#      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
     depends_on:
       - Elasticsearch  
     networks:
