@@ -1,0 +1,13 @@
+# HTTP Access Logs
+127.0.0.1 - - [14/Nov/2024:14:45:23 +0000] "GET /index.html HTTP/1.1" 200 1024
+192.168.1.10 - - [14/Nov/2024:14:46:30 +0000] "POST /submit-form HTTP/1.1" 404 2048
+172.16.0.5 - - [14/Nov/2024:14:47:45 +0000] "GET /about.html HTTP/1.1" 200 512
+10.0.0.25 - - [14/Nov/2024:14:49:02 +0000] "GET /contact.html HTTP/1.1" 503 128
+192.168.100.5 - - [14/Nov/2024:14:50:10 +0000] "POST /login HTTP/1.1" 500 4096
+
+# SSH Auth Logs
+Nov 14 15:00:45 server sshd[1024]: Accepted password for testuser from 192.168.1.20 port 22 ssh2
+Nov 14 15:01:12 server sshd[1025]: Failed password for invaliduser from 172.16.0.30 port 22 ssh2
+Nov 14 15:02:01 server sshd[1026]: Accepted publickey for admin from 10.0.0.45 port 22 ssh2: RSA SHA256:abc123examplekey
+Nov 14 15:03:15 server sshd[1027]: Disconnected from authenticating user root 192.168.100.30 port 22 [preauth]
+Nov 14 15:04:22 server sshd[1028]: Received disconnect from 10.0.0.35 port 22:11: disconnected by user
