@@ -1,53 +1,69 @@
-version: '3.6'
+version: '3.8'
+
 services:
-  Elasticsearch:
+  elasticsearch:
     image: elasticsearch:8.16.0
     container_name: elasticsearch
     restart: always
     volumes:
-    - elastic_data:/usr/share/elasticsearch/data/
+      - elastic_data:/usr/share/elasticsearch/data
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      discovery.type: single-node
-      xpack.security.enabled: false
-    ports:
-    - '9200:9200'
-    - '9300:9300'
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - discovery.type=single-node
+      - xpack.security.enabled=false
     networks:
-      - elk
+      - honeypot_net
+    ports:
+      - "9200:9200"
+      - "9300:9300"
 
-  Logstash:
+  logstash:
     image: logstash:8.16.0
     container_name: logstash
     restart: always
     volumes:
-    - ./logstash/:/logstash_dir
-    - ./temp:/logstash_dir/logs/temp/:rw
-    command: logstash -f /logstash_dir/logstash.conf 
+      - ./logstash/pipeline:/usr/share/logstash/pipeline # Foldder that contains configuration
+      - ./temp:/logstash_dir/logs/temp/:rw # Folder that contains test logs
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
     depends_on:
-      - Elasticsearch
-    ports:
-    - '9600:9600'
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"    
+      - elasticsearch
     networks:
-      - elk
+      - honeypot_net
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
 
-  Kibana:
+  kibana:
     image: kibana:8.16.0
     container_name: kibana
-    restart: always       
-    ports:
-    - '5601:5601'
+    restart: always
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-#      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
-    depends_on:
-      - Elasticsearch  
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     networks:
-      - elk
+      - honeypot_net
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+
+  manager_container:
+    image: manager_image
+    container_name: manager_container
+    privileged: true
+    ports:
+      - "2222:22"
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - honeypot_net
+
+
 volumes:
   elastic_data: {}
-
+  
 networks:
-  elk:
+  honeypot_net:
+    driver: bridge
